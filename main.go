@@ -37,7 +37,7 @@ var downloadGroup sync.WaitGroup
 var helperGroup sync.WaitGroup
 var exitRequested int32
 
-const pageSize = 2
+const pageSize = 500
 
 type Track struct {
 	Artist   string   `json:"artist"`

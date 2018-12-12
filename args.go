@@ -2,45 +2,68 @@ package main
 
 import (
 	"fmt"
-	"github.com/akamensky/argparse"
+	"github.com/spf13/pflag"
 	"os"
 )
 
-var parser = argparse.NewParser("free-music-archive-scraper",
-	"Scraper for https://freemusicarchive.org/")
+var genre = pflag.StringP("genre", "g", "", "Genre to archive")
+var listGenres = pflag.Bool("list-genres", false, "Print a list of genres")
+var concurrency = pflag.UintP("concurrency", "c", 4, "Number of concurrent downloads")
+var minPage = pflag.Uint("min-page", 1, "Starting page")
+var pageSize = pflag.Uint("page-size", 500, "Page size")
+var dir = pflag.StringP("out-dir", "o", "Downloads", "Output directory")
+var verbose = pflag.BoolP("verbose", "v", false, "More output")
 
-var genre = parser.Selector("g", "genre", availableGenres[:], &argparse.Options{
-	Required: true,
-	Help: "Genre to scrape",
-})
+var availableGenres = [...]string{
+	"Blues",
+	"Classical",
+	"Country",
+	"Electronic",
+	"Experimental",
+	"Folk",
+	"Hip-Hop",
+	"Instrumental",
+	"International",
+	"Jazz",
+	"Novelty",
+	"Old-Time__Historic",
+	"Pop",
+	"Rock",
+	"Soul-RB",
+	"Spoken",
+}
 
-var concurrency = parser.Int("c", "concurrency", &argparse.Options{
-	Help: "Number of connections",
-	Default: 4,
-})
+func parseArgs() error {
+	pflag.Usage = func() {
+		fmt.Fprintln(os.Stderr,
+`Free Music Archive Scraper by terorie 2018
+ << https://github.com/terorie/fma-scraper >>
 
-var minPage = parser.Int("", "min-page", &argparse.Options{
-	Help: "Starting page",
-	Default: 1,
-})
+Usage:`)
+		pflag.PrintDefaults()
+	}
 
-var dir = parser.String("o", "out-dir", &argparse.Options{
-	Help: "Output directory",
-	Default: "Downloads",
-})
+	pflag.Parse()
 
-var verbose = parser.Flag("v", "verbose", &argparse.Options{
-	Help: "More output",
-})
-
-func parseArgs() {
-	if err := parser.Parse(os.Args); err != nil {
-		fmt.Fprintln(os.Stderr, err)
+	if *listGenres {
+		fmt.Println("Available Genres:")
+		for _, g := range availableGenres {
+			fmt.Println(g)
+		}
 		os.Exit(1)
+	}
+
+	if *genre == "" {
+		return fmt.Errorf("-g/--genre flag required")
+	}
+
+	if *concurrency <= 0 {
+		return fmt.Errorf("invalid value for --concurrency")
 	}
 
 	if err := os.MkdirAll(*dir, 0777); err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
+		return err
 	}
+
+	return nil
 }

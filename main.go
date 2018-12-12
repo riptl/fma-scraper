@@ -12,33 +12,12 @@ import (
 	"time"
 )
 
-var availableGenres = [...]string{
-	"Blues",
-	"Classical",
-	"Country",
-	"Electronic",
-	"Experimental",
-	"Folk",
-	"Hip-Hop",
-	"Instrumental",
-	"International",
-	"Jazz",
-	"Novelty",
-	"Old-Time__Historic",
-	"Pop",
-	"Rock",
-	"Soul-RB",
-	"Spoken",
-}
-
 var startTime = time.Now()
 var totalBytes int64
 var numDownloaded int64
 var downloadGroup sync.WaitGroup
 var helperGroup sync.WaitGroup
 var exitRequested int32
-
-const pageSize = 500
 
 type Track struct {
 	Artist   string   `json:"artist"`
@@ -49,10 +28,16 @@ type Track struct {
 }
 
 func main() {
-	parseArgs()
+	if err := parseArgs(); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
 
-	jobs := make(chan Track, 2 * pageSize)
-	results := make(chan Track, 2 * pageSize)
+	logrus.Info("Starting Free Music Archive Scraper")
+	logrus.Info("  https://github.com/terorie/fma-scraper/")
+
+	jobs := make(chan Track, 2 * *pageSize)
+	results := make(chan Track, 2 * *pageSize)
 
 	c, cancel := context.WithCancel(context.Background())
 
@@ -64,8 +49,8 @@ func main() {
 	go logger(results)
 
 	// Start downloaderss
-	downloadGroup.Add(*concurrency)
-	for i := 0; i < *concurrency; i++ {
+	downloadGroup.Add(int(*concurrency))
+	for i := 0; i < int(*concurrency); i++ {
 		go downloader(jobs, results)
 	}
 
@@ -77,7 +62,7 @@ func main() {
 		}
 
 		err := backoff.Retry(func() error {
-			err := list(c, jobs, *genre, page)
+			err := list(c, jobs, *genre, int(page))
 			if err != nil {
 				logrus.WithError(err).
 					Errorf("Failed visiting page %d", page)

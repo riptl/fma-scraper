@@ -29,6 +29,10 @@ var dir = parser.String("o", "out-dir", &argparse.Options{
 	Default: "Downloads",
 })
 
+var verbose = parser.Flag("v", "verbose", &argparse.Options{
+	Help: "More output",
+})
+
 func parseArgs() {
 	if err := parser.Parse(os.Args); err != nil {
 		fmt.Fprintln(os.Stderr, err)

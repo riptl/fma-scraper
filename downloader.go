@@ -44,13 +44,17 @@ func downloader(jobs <-chan Track, results chan<- Track) {
 
 		dur := time.Since(now)
 
-		atomic.AddInt64(&totalDownloaded, n)
+		atomic.AddInt64(&totalBytes, n)
 
-		logrus.WithFields(logrus.Fields{
-			"title": job.Title,
-			"size": n,
-			"dur": dur.Seconds(),
-		}).Info("Downloaded track")
+		if *verbose {
+			logrus.WithFields(logrus.Fields{
+				"title": job.Title,
+				"size": n,
+				"dur": dur.Seconds(),
+			}).Info("Downloaded track")
+		}
+
+		atomic.AddInt64(&numDownloaded, 1)
 
 		results <- job
 	}

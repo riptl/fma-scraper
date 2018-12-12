@@ -32,7 +32,8 @@ var availableGenres = [...]string{
 }
 
 var startTime = time.Now()
-var totalDownloaded int64
+var totalBytes int64
+var numDownloaded int64
 var downloadGroup sync.WaitGroup
 var helperGroup sync.WaitGroup
 var exitRequested int32
@@ -56,6 +57,7 @@ func main() {
 	c, cancel := context.WithCancel(context.Background())
 
 	go listenCtrlC(cancel)
+	go stats()
 
 	// Start logger
 	helperGroup.Add(1)
@@ -96,11 +98,11 @@ func main() {
 	close(results)
 	helperGroup.Wait()
 
-	total := atomic.LoadInt64(&totalDownloaded)
+	total := atomic.LoadInt64(&totalBytes)
 	dur := time.Since(startTime).Seconds()
 
 	logrus.WithFields(logrus.Fields{
-		"total": total,
+		"total_bytes": total,
 		"dur": dur,
 		"avg_rate": float64(total) / dur,
 	}).Info("Stats")
@@ -117,4 +119,17 @@ func listenCtrlC(cancel context.CancelFunc) {
 	<-c
 	fmt.Fprintln(os.Stderr, "\nKilled!")
 	os.Exit(255)
+}
+
+func stats() {
+	for range time.NewTicker(time.Second).C {
+		total := atomic.LoadInt64(&totalBytes)
+		dur := time.Since(startTime).Seconds()
+
+		logrus.WithFields(logrus.Fields{
+			"tracks": numDownloaded,
+			"total_bytes": totalBytes,
+			"avg_rate": fmt.Sprintf("%.0f", float64(total) / dur),
+		}).Info("Stats")
+	}
 }

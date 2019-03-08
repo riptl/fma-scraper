@@ -3,7 +3,8 @@ High-performance scraper for https://freemusicarchive.org
 
  << https://github.com/terorie/fma-scraper >>
 
-Easily saturates your gigabit. PRs welcome.
+Please don't put unnecessary load on their servers.
+Mirror at https://archive.org/details/freemusicarchive
 
 ```
 Usage:

@@ -6,7 +6,7 @@ require (
 	github.com/klauspost/cpuid v1.2.0 // indirect
 	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
 	github.com/sirupsen/logrus v1.4.2
-	github.com/spf13/pflag v1.0.3
+	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.3.0 // indirect
 	github.com/valyala/fasthttp v1.7.1
 	golang.org/x/crypto v0.0.0-20190225124518-7f87c0fbb88b // indirect

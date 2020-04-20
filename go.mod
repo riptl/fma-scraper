@@ -9,7 +9,7 @@ require (
 	github.com/sirupsen/logrus v1.5.0
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.3.0 // indirect
-	github.com/valyala/fasthttp v1.10.0
+	github.com/valyala/fasthttp v1.11.0
 	golang.org/x/net v0.0.0-20200114155413-6afb5195e5aa
 	golang.org/x/sys v0.0.0-20200124204421-9fbb57f87de9 // indirect
 )
